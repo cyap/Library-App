@@ -13,25 +13,11 @@
 				<th>Stock</th>
 				<th>Issued</th>
 			</tr>
-			<tr>
-				<td>1000</td>
-				<td>Sample Book</td>
-				<td>Sample Author</td>
-				<td>1999</td>
-				<td>Fiction</td>
-				<td>1</td>
-				<td>0</td>
-			</tr>
 			<tr ng-repeat="book in books">
-				<td>{{ book.isbn }}</td>
-				<td>{{ book.title }}</td>
-				<td>{{ book.author }}</td>
-				<td>{{ book.published }}</td>
-				<td>{{ book.genre }}</td>
-				<td>{{ book.stock }}</td>
-				<td>{{ book.issued }}</td>
+				<td ng-repeat="property in book">{{ property }}</td>
 			</tr>
 		</table>
+
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#book-submission">Add</button>
 			<button type="button" class="btn btn-primary">Edit</button>
