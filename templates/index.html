@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div id="book-details" ng-app="app">
+	{% verbatim %}
+	<div id="book-details" ng-app="app" ng-controller="booksCtrl">
 		<table class="table table-bordered">
 			<tr>
 				<th>ISBN</th>
@@ -21,6 +22,15 @@
 				<td>1</td>
 				<td>0</td>
 			</tr>
+			<tr ng-repeat="book in books">
+				<td>{{ book.isbn }}</td>
+				<td>{{ book.title }}</td>
+				<td>{{ book.author }}</td>
+				<td>{{ book.published }}</td>
+				<td>{{ book.genre }}</td>
+				<td>{{ book.stock }}</td>
+				<td>{{ book.issued }}</td>
+			</tr>
 		</table>
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#book-submission">Add</button>
@@ -28,6 +38,7 @@
 			<button type="button" class="btn btn-primary">Delete</button>
 		</div>
 	</div>
+	{% endverbatim %}
 
 	<div id="book-submission" class="collapse">
 		<form action=>
