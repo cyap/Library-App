@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div id="book-details" ng-app="app">
+		<table class="table table-bordered">
+			<tr>
+				<th>ISBN</th>
+				<th>Title</th>
+				<th>Author</th>
+				<th>Published</th>
+				<th>Genre</th>
+				<th>Stock</th>
+				<th>Issued</th>
+			</tr>
+			<tr>
+				<td>1000</td>
+				<td>Sample Book</td>
+				<td>Sample Author</td>
+				<td>1999</td>
+				<td>Fiction</td>
+				<td>1</td>
+				<td>0</td>
+			</tr>
+		</table>
+		<div class="btn-group">
+			<button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#book-submission">Add</button>
+			<button type="button" class="btn btn-primary">Edit</button>
+			<button type="button" class="btn btn-primary">Delete</button>
+		</div>
+	</div>
+
+	<div id="book-submission" class="collapse">
+		<form action=>
+			<div class="form-group">
+				<table>
+				{{ book_form }}
+				</table>
+			</div>
+			<input type="submit" name="book-submit">
+		</form>
+	</div>
+{% endblock %}
