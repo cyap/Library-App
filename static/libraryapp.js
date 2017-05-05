@@ -4,21 +4,37 @@ app.config(['$httpProvider', function($httpProvider) {
     $httpProvider.defaults.headers.common['X-CSRFToken'] = CSRF;
 }]);
 
-app.controller("booksCtrl", function($scope, $http) {
+app.controller("books_ctrl", function($scope, $http) {
 
-	$scope.update_books = function() {
+	$scope.update_view = function(response) {
+		// Update all relevant Angular models
+
 		// Populate table from Django database query
-		$http.get("/books").then(function(response) {
-			$scope.books = response.data.books;	
-		});
+		$scope.books = angular.fromJson(response.data.books);
+
+		// Fill in errors if any 
+		var errors = angular.fromJson(response.data.errors);
+		for (error in errors) {
+			$scope[error] = errors[error];
+		}
+	}
+
+	$scope.initialize = function() {
+		$http.get("/books").then($scope.update_view);
 	};
 
 	$scope.add_book = function() {
-		$http.post("/add", $scope.book).then(function(response) {
-			$scope.books = angular.fromJson(response.data.books);
-		});
+		$http.post("/add", $scope.book).then($scope.update_view);
 	};
 
-	// Populate table initially
-	$scope.update_books();
+	$scope.delete_book = function() {
+		$http.post("/delete", $scope.book).then($scope.update_view);
+	};
+
+	$scope.edit_book = function() {
+		$http.post("/edit", $scope.book).then($scope.update_view);
+	};
+
+	// Initial table population
+	$scope.initialize();
 }) 
