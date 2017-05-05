@@ -9,43 +9,34 @@ from .forms import BookForm
 from .models import Book, Transaction
 
 def index(request):
-	book_form = BookForm()
 	return render(request, "index.html", {
-		"book_form":book_form
+		"book_form":BookForm()
 	})
 
 def books(request):
 	# Query the database for list of books
-	book_list = list(Book.objects.all())
-
-	# Sample book while database is empty
-	book_list = [{
-	"fields": {
-		"isbn": 100001,
-		"title": "Test2",
-		"author": "Author2",
-		"published": 1998,
-		"genre": "Western",
-		"stock": 3,
-		"issued": 0
-		}
-	}]
+	book_list = serializers.serialize("json", Book.objects.all()[::-1])
 
 	# Return as JSON objects
 	return JsonResponse(data={"books":book_list})
 
 def add(request):
 	book = Book(**json.loads(request.body))
-	# TODO: Save book to database
-	book_list = serializers.serialize("json", [book])
+	book.issued = 0
+	try:
+		book.save()
+	except:
+		# TODO: Duplicate ISBN: Render error in template
+		pass
 
-	# TODO: Load books from database, in order from most recent to least
-	# book_list = list(Book.objects.all())
-
-	return JsonResponse(data={"books":book_list})
+	return books(request)
 
 def delete(request):
-	return
+	# Use ISBN as id, since ISBN should be unique
+	book = Book.objects.get(isbn=int(json.loads(request.body)["isbn"]))
+	book.delete()
+	return books(request)
+	return JsonResponse(data={"books":book_list})
 
 def edit(request):
 	return
