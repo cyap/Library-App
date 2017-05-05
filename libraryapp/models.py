@@ -2,11 +2,11 @@ from django.db import models
 
 # Create your models here.
 class Book(models.Model):
+	isbn = models.PositiveIntegerField("ISBN Number")
 	title = models.CharField(max_length=255)
 	author = models.CharField(max_length=255)
-	isbn = models.PositiveIntegerField() 
 	stock = models.PositiveIntegerField()
-	published = models.IntegerField()
+	published = models.IntegerField("Year Published")
 	genre = models.CharField(max_length=255)
 	issued = models.PositiveIntegerField()
 
