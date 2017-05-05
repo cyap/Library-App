@@ -23,17 +23,18 @@
 			<button type="button" class="btn btn-primary">Edit</button>
 			<button type="button" class="btn btn-primary">Delete</button>
 		</div>
-	</div>
 	{% endverbatim %}
 
-	<div id="book-submission" class="collapse">
-		<form action=>
-			<div class="form-group">
-				<table>
-				{{ book_form }}
-				</table>
-			</div>
-			<input type="submit" name="book-submit">
-		</form>
+		<div id="book-submission" class="collapse">
+			<form method="POST">
+				{% csrf_token %}
+				<div class="form-group">
+					<table>
+					{{ book_form }}
+					</table>
+				</div>
+				<input type="submit" name="book-submit" ng-click="add_book()">
+			</form>
+		</div>
 	</div>
 {% endblock %}
