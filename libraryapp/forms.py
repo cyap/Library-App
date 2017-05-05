@@ -8,7 +8,7 @@ class BookForm(forms.ModelForm):
 		super(BookForm, self).__init__(*args, **kwargs)
 		# Add custom "ng-model" attribute to each field rendered by the form
 		for field_name, field_object in self.fields.items():
-			field_object.widget.attrs.update({"ng-model":field_name})
+			field_object.widget.attrs.update({"ng-model":"book."+field_name})
 
 	class Meta:
 		model = Book
