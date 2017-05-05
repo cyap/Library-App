@@ -2,7 +2,7 @@
 
 {% block content %}
 	{% verbatim %}
-	<div id="book-details" ng-app="app" ng-controller="booksCtrl">
+	<div id="book-details" ng-app="app" ng-controller="books_ctrl">
 		<table class="table table-bordered">
 			<tr>
 				<th>ISBN</th>
@@ -30,7 +30,16 @@
 				{% csrf_token %}
 				<div class="form-group">
 					<table>
-					{{ book_form }}
+					{% for field in book_form %}
+						<tr>
+							<th>{{ field.label_tag }}</th>
+							<td>{{ field }}</td>
+							<td>
+								<span class="bg-danger" ng-bind="error_{{ field.name }}">
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
 					</table>
 				</div>
 				<input type="submit" name="book-submit" ng-click="add_book()">

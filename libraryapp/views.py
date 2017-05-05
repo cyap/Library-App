@@ -13,30 +13,33 @@ def index(request):
 		"book_form":BookForm()
 	})
 
-def books(request):
+def books(request, errors={}):
 	# Query the database for list of books
 	book_list = serializers.serialize("json", Book.objects.all()[::-1])
 
 	# Return as JSON objects
-	return JsonResponse(data={"books":book_list})
+	return JsonResponse(data={"books":book_list, "errors":errors})
 
 def add(request):
 	book = Book(**json.loads(request.body))
 	book.issued = 0
+	errors = {}
 	try:
 		book.save()
 	except:
-		# TODO: Duplicate ISBN: Render error in template
-		pass
-
-	return books(request)
+		# TODO: Validation /  Render error in template
+		# Cases:
+		# 	Duplicate ISBN: django.db.utils.IntegrityError
+		#	ISBN: NaN / Length (10, 13)
+		#	Year: Invalid
+		#	
+		errors["error_isbn"] = "Book with the same ISBN already exists in the database."
+	return books(request, errors)
 
 def delete(request):
-	# Use ISBN as id, since ISBN should be unique
 	book = Book.objects.get(isbn=int(json.loads(request.body)["isbn"]))
 	book.delete()
 	return books(request)
-	return JsonResponse(data={"books":book_list})
 
 def edit(request):
 	return
