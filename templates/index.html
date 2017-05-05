@@ -14,7 +14,7 @@
 				<th>Issued</th>
 			</tr>
 			<tr ng-repeat="book in books">
-				<td ng-repeat="property in book">{{ property }}</td>
+				<td ng-repeat="property in book.fields">{{ property }}</td>
 			</tr>
 		</table>
 
