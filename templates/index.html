@@ -13,19 +13,25 @@
 				<th>Stock</th>
 				<th>Issued</th>
 			</tr>
-			<tr ng-repeat="book in books">
-				<td ng-repeat="property in book.fields">{{ property }}</td>
+			<tr ng-repeat="book in books" ng-focus="select($event)" ng-blur="blur($event)" tabindex="0">
+				<td ng-repeat="(key, property) in book.fields">
+					<span ng-hide="editor.{{ key }}">{{ property }}</span>
+					<form ng-hide="!(editor.{{ key }})">
+						<input type="text" ng-model="property">
+						<input type="submit">
+					</form>
+				</td>
 			</tr>
 		</table>
 
 		<div class="btn-group">
-			<button type="button" class="btn btn-primary" data-toggle="collapse" data-target="#book-submission">Add</button>
-			<button type="button" class="btn btn-primary">Edit</button>
-			<button type="button" class="btn btn-primary">Delete</button>
+			<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
+			<button type="button" class="btn btn-primary mod-button disabled" ng-click="edit_book()" ng-disabled="mod_disabled">Edit</button>
+			<button type="button" class="btn btn-primary mod-button disabled" ng-click="delete_book()" ng-disabled="mod_disabled">Delete</button>
 		</div>
 	{% endverbatim %}
 
-		<div id="book-submission" class="collapse">
+		<div id="book-submission" ng-show="toggled">
 			<form method="POST">
 				{% csrf_token %}
 				<div class="form-group">
@@ -35,7 +41,7 @@
 							<th>{{ field.label_tag }}</th>
 							<td>{{ field }}</td>
 							<td>
-								<span class="bg-danger" ng-bind="error_{{ field.name }}">
+								<span class="bg-danger" ng-bind="errors.error_{{ field.name }}">
 								</span>
 							</td>
 						</tr>
