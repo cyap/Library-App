@@ -31,3 +31,12 @@ class Transaction(models.Model):
 	transaction_type = models.BooleanField("Transaction Type")
 	transaction_date = models.DateField("Transaction Date")
 	other_date = models.DateField("Issue/Return Date")
+
+	def clean(self):
+		error_dict = {}
+
+		if self.transaction_type ^ (self.other_date > self.transaction_date):
+			error_dict["transaction_date"] = error_dict.get("transaction_date", "") + "Issue date must precede return date."
+
+		if error_dict:
+			raise ValidationError(error_dict)
