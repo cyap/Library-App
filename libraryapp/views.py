@@ -2,21 +2,22 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
+from django.core.exceptions import ValidationError
 
 import json
 
-from .forms import BookForm
+from .forms import BookForm, TransactionForm
 from .models import Book, Transaction
 
 def index(request):
 	return render(request, "index.html", {
-		"book_form":BookForm()
+		"book_form":BookForm(),
+		"transaction_form":TransactionForm()
 	})
 
 def books(request, errors={}):
 	# Query the database for list of books
 	book_list = serializers.serialize("json", Book.objects.all()[::-1])
-
 	# Return as JSON objects
 	return JsonResponse(data={"books":book_list, "errors":errors})
 
@@ -25,21 +26,17 @@ def add(request):
 	book.issued = 0
 	errors = {}
 	try:
+		book.full_clean()
 		book.save()
-	except:
-		# TODO: Validation /  Render error in template
-		# Cases:
-		# 	Duplicate ISBN: django.db.utils.IntegrityError
-		#	ISBN: NaN / Length (10, 13)
-		#	Year: Invalid
-		#	
-		errors["error_isbn"] = "Book with the same ISBN already exists in the database."
+	except ValidationError as e:
+		errors = e.message_dict
 	return books(request, errors)
 
 def delete(request):
-	book = Book.objects.get(isbn=int(json.loads(request.body)["isbn"]))
+	book = Book.objects.get(isbn=json.loads(request.body)["isbn"])
+	# TODO: Error delegation
+	# Invalid ISBN?
 	if book.issued > 0:
-		# TODO: Error delegation
 		errors = {"error_delete":"Cannot delete a book that has been issued."}
 	else:
 		book.delete()
@@ -47,9 +44,12 @@ def delete(request):
 
 def edit(request):
 	data = json.loads(request.body)
-	book = Book.objects.get(isbn=int(data["isbn"]))
-
+	book = Book.objects.get(isbn=data["isbn"])
 	# TODO: Validate
+	# Invalid data*
+	# Invalid stock
+	# Stock cannot go below issue
+	# Dependent fields?
 	book.stock = data["stock"]
 	book.save()
 	return books(request)

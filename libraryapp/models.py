@@ -1,4 +1,6 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 # Create your models here.
 class Book(models.Model):
@@ -10,8 +12,22 @@ class Book(models.Model):
 	stock = models.PositiveIntegerField()
 	issued = models.PositiveIntegerField()
 
+	def clean(self):
+		error_dict = {}
+
+		# ISBN Validation
+		if not (len(self.isbn) == 10 or len(self.isbn) == 13):
+			error_dict["isbn"] = _("ISBN must be 10 or 13 digits.")
+		try:
+			int(self.isbn)
+		except:
+			error_dict["isbn"] = error_dict.get("isbn", "") + " ISBN must contain numbers only."
+
+		if error_dict:
+			raise ValidationError(error_dict)
+
 class Transaction(models.Model):
 	book_id = models.ForeignKey(Book, related_name='transactions')
-	transaction_type = models.BooleanField()
-	transaction_date = models.DateField()
-	date = models.DateField()
+	transaction_type = models.BooleanField("Transaction Type")
+	transaction_date = models.DateField("Transaction Date")
+	other_date = models.DateField("Issue/Return Date")

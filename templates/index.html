@@ -44,7 +44,7 @@
 							<th>{{ field.label_tag }}</th>
 							<td>{{ field }}</td>
 							<td>
-								<span class="bg-danger" ng-bind="errors.error_{{ field.name }}">
+								<span class="bg-danger" ng-bind="errors.{{ field.name }}">
 								</span>
 							</td>
 						</tr>
@@ -71,7 +71,7 @@
 							<th>{{ field.label_tag }}</th>
 							<td>{{ field }}</td>
 							<td>
-								<span class="bg-danger" ng-bind="errors.error_{{ field.name }}">
+								<span class="bg-danger" ng-bind="errors.{{ field.name }}">
 								</span>
 							</td>
 						</tr>
