@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-	{% verbatim %}
 	<div id="book-details" ng-app="app" ng-controller="books_ctrl">
+		{% verbatim %}
 		<table class="table table-bordered">
 			<tr>
 				<th>#</th>
@@ -28,12 +28,13 @@
 
 		<div class="btn-group">
 			<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
-			<button type="button" class="btn btn-primary mod-button disabled" ng-click="edit_book()" ng-disabled="mod_disabled">Edit</button>
-			<button type="button" class="btn btn-primary mod-button disabled" ng-click="delete_book()" ng-disabled="mod_disabled">Delete</button>
+			<button type="button" class="btn btn-primary mod-btn" ng-click="edit_book()" ng-disabled="!(selected_row)">Edit</button>
+			<button type="button" class="btn btn-primary mod-btn" ng-click="delete_book()" ng-disabled="!(selected_row)">Delete</button>
+			<button type="button" ng-disabled="!(selected_row)" class="btn btn-primary" ng-click="toggle_tr()">Transaction</button>
 		</div>
-	{% endverbatim %}
+		{% endverbatim %}
 
-		<div id="book-submission" ng-show="toggled">
+		<div id="book-submission" ng-show="add_open">
 			<form method="POST">
 				{% csrf_token %}
 				<div class="form-group">
@@ -50,8 +51,37 @@
 					{% endfor %}
 					</table>
 				</div>
-				<input type="submit" name="book-submit" ng-click="add_book()">
+				<input type="submit" ng-click="add_book()">
 			</form>
 		</div>
+
+		<div id="transaction-form" ng-show="tr_open">
+			<form method="POST">
+				{% csrf_token %}
+				<div class="form-group">
+					<table>
+						{% verbatim %}
+						<tr>
+							<th>Book</th>
+							<td><span ng-bind="transaction_title"></span></td>
+						</tr>
+						{% endverbatim %}
+					{% for field in transaction_form %}
+						<tr>
+							<th>{{ field.label_tag }}</th>
+							<td>{{ field }}</td>
+							<td>
+								<span class="bg-danger" ng-bind="errors.error_{{ field.name }}">
+								</span>
+							</td>
+						</tr>
+					{% endfor %}
+					</table>
+				</div>
+				<input type="submit" ng-click="transaction()">
+			</form>
+		</div>
+
+
 	</div>
 {% endblock %}
