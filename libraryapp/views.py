@@ -19,6 +19,10 @@ def books(request, errors={}):
 	# Query the database for list of books
 	book_list = serializers.serialize("json", Book.objects.all()[::-1])
 	# Return as JSON objects
+	print(errors)
+	for key in errors:
+		if isinstance(errors[key], list):
+			errors[key] = " ".join(errors[key])
 	return JsonResponse(data={"books":book_list, "errors":errors})
 
 def add(request):
@@ -53,3 +57,28 @@ def edit(request):
 	book.stock = data["stock"]
 	book.save()
 	return books(request)
+
+def transaction(request):
+	errors = {}
+	data = json.loads(request.body)
+	book = Book.objects.get(isbn=data["isbn"])
+
+	# If no books are in stock and transaction is an issue
+	if data["tr"]["transaction_type"] and not book.stock:
+		errors["transaction_type"] = "Cannot issue a book that is out-of-stock."
+	try:
+		transaction = Transaction(book_id=book, **data["tr"])
+		transaction.full_clean()
+		transaction.save()
+	except ValidationError as e:
+		errors = {**errors, **e.message_dict}
+
+	# TODO
+	# Validate
+	# Issue date before return date
+
+	return books(request, errors)
+
+
+
+

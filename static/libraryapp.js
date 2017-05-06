@@ -11,8 +11,6 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 		$http.get("/books").then($scope.update_view);
 		$scope.add_open = false;
 		$scope.tr_open = false;
-		$scope.mod_disabled = true;
-		
 	};
 
 	$scope.update_view = function(response) {
@@ -41,6 +39,10 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 		$http.post("/edit", {stock:new_stock, isbn:book.fields.isbn}).then($scope.update_view);
 	}
 
+	$scope.transaction = function() {
+		$http.post("/transaction", {isbn:$scope.transaction_isbn, tr:$scope.tr}).then($scope.update_view);
+	}
+
 	$scope.select = function(event) {
 		$scope.tr_open = false;
 		$scope.selected_row = event.target;
@@ -60,16 +62,19 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 		}, 150)
 	}
 
-	$scope.toggle_add = function(event) {
+	$scope.toggle_add = function() {
 		// Open / close submission form
 		$scope.add_open = !$scope.add_open;
 		$scope.tr_open = false;
 	}
 
-	$scope.toggle_tr = function(event) {
+	$scope.toggle_tr = function() {
+		// Manage panes
 		$scope.tr_open = !$scope.tr_open;
 		$scope.add_open = false;
-		$scope.transaction_title = $scope.selected_row.children[2].children[0].innerHTML
+
+		$scope.tr = {};
+		$scope.transaction_isbn = $scope.selected_row.children[1].children[0].innerHTML
 	}
 
 	$scope.initialize();
