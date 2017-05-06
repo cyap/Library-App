@@ -8,21 +8,18 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 
 	$scope.initialize = function() {
 
-		$scope.editor = {"stock":true, "property":false};
+		$scope.editor = {}
 		$http.get("/books").then($scope.update_view);
 		$scope.toggled = false;
 		$scope.mod_disabled = true;
-		
-		//for (book in $scope.books) {
-		//	$scope.book["edit_mode"] = true;
-		//}
 	};
 
 	$scope.update_view = function(response) {
 		// Update all relevant Angular models
-
+		$scope.editor = {}
 		// Populate table from Django database query
 		$scope.books = angular.fromJson(response.data.books);
+		console.log($scope.books);
 		// Fill in errors if any 
 		$scope.errors = angular.fromJson(response.data.errors);;
 	}
@@ -32,19 +29,23 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 	};
 
 	$scope.delete_book = function() {
-		var delete_id = $scope.selected_row.children[0].children[0].innerHTML
+		var delete_id = $scope.selected_row.children[1].children[0].innerHTML
 		$http.post("/delete", {isbn:delete_id}).then($scope.update_view);
 		$scope.selected_row = undefined;
 	};
 	
 	$scope.edit_book = function() {
-		$scope.editor["stock"] = !$scope.editor.stock;
-		$scope.editor.property = true;
-		$scope.selected_row = undefined;
+		// Map attribute (only stock editable in this case) to row and set visibility to true   
+		$scope.editor["stock"+($scope.selected_row.children[0].innerHTML-1)] = true;
 	};
 
+	$scope.edit_update = function(new_stock, book) {
+		$http.post("/edit", {stock:new_stock, isbn:book.fields.isbn}).then($scope.update_view);
+
+	}
+
+
 	$scope.select = function(event) {
-		//console.log("select");
 		$scope.selected_row = event.target;
 		angular.element($scope.selected_row).addClass("active");
 		// Enable edit / delete buttons only when row is selected

@@ -38,8 +38,18 @@ def add(request):
 
 def delete(request):
 	book = Book.objects.get(isbn=int(json.loads(request.body)["isbn"]))
-	book.delete()
+	if book.issued > 0:
+		# TODO: Error delegation
+		errors = {"error_delete":"Cannot delete a book that has been issued."}
+	else:
+		book.delete()
 	return books(request)
 
 def edit(request):
-	return
+	data = json.loads(request.body)
+	book = Book.objects.get(isbn=int(data["isbn"]))
+
+	# TODO: Validate
+	book.stock = data["stock"]
+	book.save()
+	return books(request)

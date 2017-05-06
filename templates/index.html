@@ -5,6 +5,7 @@
 	<div id="book-details" ng-app="app" ng-controller="books_ctrl">
 		<table class="table table-bordered">
 			<tr>
+				<th>#</th>
 				<th>ISBN</th>
 				<th>Title</th>
 				<th>Author</th>
@@ -14,11 +15,12 @@
 				<th>Issued</th>
 			</tr>
 			<tr ng-repeat="book in books" ng-focus="select($event)" ng-blur="blur($event)" tabindex="0">
+				<td>{{ $index + 1 }}</td>
 				<td ng-repeat="(key, property) in book.fields">
-					<span ng-hide="editor.{{ key }}">{{ property }}</span>
-					<form ng-hide="!(editor.{{ key }})">
+					<span ng-hide="editor.{{ key + $parent.$index }}">{{ property }}</span>
+					<form ng-hide="!(editor.{{ key + $parent.$index }})">
 						<input type="text" ng-model="property">
-						<input type="submit">
+						<input type="submit" ng-click="edit_update(property, book)">
 					</form>
 				</td>
 			</tr>
