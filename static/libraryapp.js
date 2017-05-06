@@ -69,6 +69,7 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 	}
 
 	$scope.toggle_tr = function() {
+		$scope.errors = {};
 		// Manage panes
 		$scope.tr_open = !$scope.tr_open;
 		$scope.add_open = false;

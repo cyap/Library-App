@@ -26,9 +26,9 @@ def books(request, errors={}):
 	return JsonResponse(data={"books":book_list, "errors":errors})
 
 def add(request):
+	errors = {}
 	book = Book(**json.loads(request.body))
 	book.issued = 0
-	errors = {}
 	try:
 		book.full_clean()
 		book.save()
@@ -37,45 +37,40 @@ def add(request):
 	return books(request, errors)
 
 def delete(request):
+	errors = {}
 	book = Book.objects.get(isbn=json.loads(request.body)["isbn"])
-	# TODO: Error delegation
-	# Invalid ISBN?
 	if book.issued > 0:
-		errors = {"error_delete":"Cannot delete a book that has been issued."}
+		errors = {"general":"Cannot delete a book that has been issued."}
 	else:
 		book.delete()
-	return books(request)
+	return books(request, errors)
 
 def edit(request):
+	errors = {}
 	data = json.loads(request.body)
 	book = Book.objects.get(isbn=data["isbn"])
-	# TODO: Validate
-	# Invalid data*
-	# Invalid stock
-	# Stock cannot go below issue
-	# Dependent fields?
-	book.stock = data["stock"]
-	book.save()
-	return books(request)
+	try:
+		book.stock = data["stock"]
+		book.clean()
+		book.save()
+	except ValidationError as e:
+		errors = e.message_dict
+	except ValueError:
+		errors = {"general":"Invalid stock"}
+
+	return books(request, errors)
 
 def transaction(request):
 	errors = {}
 	data = json.loads(request.body)
 	book = Book.objects.get(isbn=data["isbn"])
 
-	# If no books are in stock and transaction is an issue
-	if data["tr"]["transaction_type"] and not book.stock:
-		errors["transaction_type"] = "Cannot issue a book that is out-of-stock."
 	try:
 		transaction = Transaction(book_id=book, **data["tr"])
 		transaction.full_clean()
 		transaction.save()
 	except ValidationError as e:
 		errors = {**errors, **e.message_dict}
-
-	# TODO
-	# Validate
-	# Issue date before return date
 
 	return books(request, errors)
 

@@ -23,6 +23,17 @@ class Book(models.Model):
 		except:
 			error_dict["isbn"] = error_dict.get("isbn", "") + " ISBN must contain numbers only."
 
+		# Stock
+		if self.stock < 0:
+			error_dict["stock"] = "Stock must be positive."
+
+		if self.stock < self.issued:
+			error_dict["stock"] = error_dict.get("stock", "") + " Stock must be greater than number of books issued."
+
+		# Issued
+		if self.issued < 0:
+			error_dict["issued"] = "Books issued must be positive."
+
 		if error_dict:
 			raise ValidationError(error_dict)
 
@@ -35,8 +46,32 @@ class Transaction(models.Model):
 	def clean(self):
 		error_dict = {}
 
-		if self.transaction_type ^ (self.other_date > self.transaction_date):
-			error_dict["transaction_date"] = error_dict.get("transaction_date", "") + "Issue date must precede return date."
+		try:
+			if self.transaction_type ^ (self.other_date > self.transaction_date):
+				error_dict["transaction_date"] = "Issue date must precede return date."
+		except:
+			pass
 
+		if self.transaction_type:
+			# If no books are in stock and transaction is an issue
+			if not self.book_id.stock:
+				error_dict["transaction_type"] = "Cannot issue a book that is out-of-stock."
+			else:
+				self.book_id.issued += 1
+
+		else:
+			# If transaction is a return
+			self.book_id.issued -= 1
+
+		# Validate transaction on book
+		try:
+			self.book_id.clean()
+		except ValidationError as e:
+			error_dict["transaction_type"] = " ".join([error_dict.get("transaction_type", ""), "".join(*(e.message_dict.values()))])
+		
 		if error_dict:
 			raise ValidationError(error_dict)
+		else:
+			self.book_id.save()
+
+
