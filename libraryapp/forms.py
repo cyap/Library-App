@@ -29,7 +29,6 @@ class TransactionForm(forms.ModelForm):
 			field_object.widget.attrs.update({"ng-model":"tr."+field_name})
 
 	class Meta:
-		YEARS = [year for year in range(2000,2010)]
 		model = Transaction
 		fields = ["transaction_type", "transaction_date", "other_date"]
 		# Override default renderer for inline radio buttons
@@ -37,8 +36,8 @@ class TransactionForm(forms.ModelForm):
 					"transaction_type": forms.RadioSelect(
 							renderer=InlineRender, 
 							choices=[(True,"Issue"), (False,"Return")]),
-					"transaction_date": CustomDateWidget(years = YEARS),
-					"other_date": CustomDateWidget(years = YEARS)
+					"transaction_date": CustomDateWidget(),
+					"other_date": CustomDateWidget()
 
 		}
 
