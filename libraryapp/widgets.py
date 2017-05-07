@@ -19,11 +19,8 @@ class CustomDateWidget(SelectDateWidget):
 	
 	def __init__(self, attrs=None, years=None, months=None, empty_label=None, test=None):
 		super(CustomDateWidget, self).__init__(attrs, years, months, empty_label)
-		print(dir(self))
-		print(self.attrs)
 
 	def render(self, name, value, attrs=None):
-		print(name)
 		context = super().render(name, value, attrs=attrs)
 		context_args = context.split('"tr.{0}"'.format(name))
 		new_context = '{1}{0}_month{2}{0}_day{3}{0}_year{4}'.format(name, *context_args)

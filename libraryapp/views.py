@@ -3,6 +3,7 @@ from django.template import RequestContext
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from django.core.exceptions import ValidationError
+from django.utils.timezone import datetime
 
 import json
 
@@ -19,7 +20,6 @@ def books(request, errors={}):
 	# Query the database for list of books
 	book_list = serializers.serialize("json", Book.objects.all()[::-1])
 	# Return as JSON objects
-	print(errors)
 	for key in errors:
 		if isinstance(errors[key], list):
 			errors[key] = " ".join(errors[key])
@@ -54,7 +54,7 @@ def edit(request):
 		book.clean()
 		book.save()
 	except ValidationError as e:
-		errors = e.message_dict
+		errors = {"general": " ".join(*e.message_dict.values())}
 	except ValueError:
 		errors = {"general":"Invalid stock"}
 
@@ -82,4 +82,25 @@ def get_transactions(request):
 	return JsonResponse(data={"transactions":serialized_transactions})
 
 
+def close_transaction(request):
+	data = json.loads(request.body)
 
+	transaction = Transaction.objects.get(pk=data["target_key"])
+	book = Book.objects.get(pk=transaction.book_id.pk)
+
+	# Return: Close transaction, return date = today, other date becomes date issued
+	transaction.transaction_type = False
+	transaction.other_date = transaction.transaction_date
+	transaction.transaction_date = str(datetime.today()).split(" ")[0]
+	book.issued -= 1
+
+	transaction.save()
+	book.save()
+	
+	transactions = Transaction.objects.filter(book_id=book)
+	books = Book.objects.all()
+
+	return JsonResponse(data={
+		"books":serializers.serialize("json", books[::-1]),
+		"transactions":serializers.serialize("json", transactions[::-1])
+		})

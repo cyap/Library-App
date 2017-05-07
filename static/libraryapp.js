@@ -42,12 +42,20 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 
 	$scope.transaction = function() {
 		$scope.tr.transaction_date = $scope.transaction_date_year + "-" 
-			+ $scope.transaction_date_month + "-" + $scope.transaction_date_day
+			+ $scope.transaction_date_month + "-" + $scope.transaction_date_day;
 		$scope.tr.other_date = $scope.other_date_year + "-" 
-			+ $scope.other_date_month + "-" + $scope.other_date_day
+			+ $scope.other_date_month + "-" + $scope.other_date_day;
 		$http.post("/transaction", {isbn:$scope.transaction_isbn, tr:$scope.tr})
 		.then($scope.update_view);
 		$scope.tr = {}
+	}
+
+	$scope.close_transaction = function (event) {
+		var target_key = $scope.transactions[event.target.parentNode.parentNode.children[0].innerHTML-1].pk;
+		$http.post("/close_transaction", {target_key:target_key}).then(function(response) {
+			$scope.transactions = angular.fromJson(response.data.transactions);
+			$scope.books = angular.fromJson(response.data.books);
+		})
 	}
 
 	$scope.select = function(event) {
@@ -55,13 +63,11 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 		$scope.selected_row = event.target;
 		angular.element($scope.selected_row).addClass("active");
 
-		//console.log($scope.selected_row.children[1].children[0].innerHTML)
-
+		// Load transactions for selected row
 		$http.post("/get_transactions", {target:$scope.selected_row.children[1].children[0].innerHTML})
 			.then(function(response) {
 				$scope.transactions = angular.fromJson(response.data.transactions);
 			})
-		
 	}
 
 	$scope.blur = function(event) {
