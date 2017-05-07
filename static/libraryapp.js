@@ -36,17 +36,29 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 	};
 
 	$scope.edit_update = function(new_stock, book) {
-		$http.post("/edit", {stock:new_stock, isbn:book.fields.isbn}).then($scope.update_view);
+		$http.post("/edit", {stock:new_stock, isbn:book.fields.isbn})
+		.then($scope.update_view);
 	}
 
 	$scope.transaction = function() {
-		$http.post("/transaction", {isbn:$scope.transaction_isbn, tr:$scope.tr}).then($scope.update_view);
+		$scope.tr.transaction_date = $scope.transaction_date_year + "-" 
+			+ $scope.transaction_date_month + "-" + $scope.transaction_date_day
+		$http.post("/transaction", {isbn:$scope.transaction_isbn, tr:$scope.tr})
+		.then($scope.update_view);
 	}
 
 	$scope.select = function(event) {
 		$scope.tr_open = false;
 		$scope.selected_row = event.target;
 		angular.element($scope.selected_row).addClass("active");
+
+		//console.log($scope.selected_row.children[1].children[0].innerHTML)
+
+		$http.post("/get_transactions", {target:$scope.selected_row.children[1].children[0].innerHTML})
+			.then(function(response) {
+				$scope.transactions = angular.fromJson(response.data.transactions);
+			})
+		
 	}
 
 	$scope.blur = function(event) {
@@ -69,6 +81,7 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 	}
 
 	$scope.toggle_tr = function() {
+
 		$scope.errors = {};
 		// Manage panes
 		$scope.tr_open = !$scope.tr_open;

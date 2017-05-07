@@ -1,87 +1,110 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<div id="book-details" ng-app="app" ng-controller="books_ctrl">
-		{% verbatim %}
-		<table class="table table-bordered">
-			<tr>
-				<th>#</th>
-				<th>ISBN</th>
-				<th>Title</th>
-				<th>Author</th>
-				<th>Published</th>
-				<th>Genre</th>
-				<th>Stock</th>
-				<th>Issued</th>
-			</tr>
-			<tr ng-repeat="book in books" ng-focus="select($event)" ng-blur="blur($event)" tabindex="0">
-				<td>{{ $index + 1 }}</td>
-				<td ng-repeat="(key, property) in book.fields">
-					<span ng-hide="editor.{{ key + $parent.$index }}">{{ property }}</span>
-					<form ng-hide="!(editor.{{ key + $parent.$index }})">
-						<input type="text" ng-model="property">
-						<input type="submit" ng-click="edit_update(property, book)">
+	<div class="container-fluid" ng-app="app" ng-controller="books_ctrl">
+		<div class="row">
+			<div class="col-xs-7">
+				{% verbatim %}
+				<table class="table table-bordered">
+					<tr>
+						<th>#</th>
+						<th>ISBN</th>
+						<th>Title</th>
+						<th>Author</th>
+						<th>Published</th>
+						<th>Genre</th>
+						<th>Stock</th>
+						<th>Issued</th>
+					</tr>
+					<tr ng-repeat="book in books" ng-focus="select($event)" ng-blur="blur($event)" tabindex="0">
+						<td>{{ $index + 1 }}</td>
+						<td ng-repeat="(key, property) in book.fields">
+							<span ng-hide="editor.{{ key + $parent.$index }}">{{ property }}</span>
+							<form ng-hide="!(editor.{{ key + $parent.$index }})">
+								<input type="text" ng-model="property">
+								<input type="submit" ng-click="edit_update(property, book)">
+							</form>
+						</td>
+					</tr>
+				</table>
+				<span class="bg-danger" ng-bind="errors.general"></span><br>
+
+				<div class="btn-group">
+					<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
+					<button type="button" class="btn btn-primary mod-btn" ng-click="edit_book()" ng-disabled="!(selected_row)">Edit</button>
+					<button type="button" class="btn btn-primary mod-btn" ng-click="delete_book()" ng-disabled="!(selected_row)">Delete</button>
+					<button type="button" ng-disabled="!(selected_row)" class="btn btn-primary" ng-click="toggle_tr()">Transaction</button>
+				</div>
+				{% endverbatim %}
+
+				<div id="book-submission" ng-show="add_open">
+					<form method="POST">
+						{% csrf_token %}
+						<div class="form-group">
+							<table>
+							{% for field in book_form %}
+								<tr>
+									<th>{{ field.label_tag }}</th>
+									<td>{{ field }}</td>
+									<td>
+										<span class="bg-danger" ng-bind="errors.{{ field.name }}">
+										</span>
+									</td>
+								</tr>
+							{% endfor %}
+							</table>
+						</div>
+						<input type="submit" ng-click="add_book()">
 					</form>
-				</td>
-			</tr>
-		</table>
-
-		<div class="btn-group">
-			<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
-			<button type="button" class="btn btn-primary mod-btn" ng-click="edit_book()" ng-disabled="!(selected_row)">Edit</button>
-			<button type="button" class="btn btn-primary mod-btn" ng-click="delete_book()" ng-disabled="!(selected_row)">Delete</button>
-			<button type="button" ng-disabled="!(selected_row)" class="btn btn-primary" ng-click="toggle_tr()">Transaction</button>
-		</div>
-		{% endverbatim %}
-
-		<div id="book-submission" ng-show="add_open">
-			<form method="POST">
-				{% csrf_token %}
-				<div class="form-group">
-					<table>
-					{% for field in book_form %}
-						<tr>
-							<th>{{ field.label_tag }}</th>
-							<td>{{ field }}</td>
-							<td>
-								<span class="bg-danger" ng-bind="errors.{{ field.name }}">
-								</span>
-							</td>
-						</tr>
-					{% endfor %}
-					</table>
 				</div>
-				<input type="submit" ng-click="add_book()">
-			</form>
-		</div>
 
-		<div id="transaction-form" ng-show="tr_open">
-			<form method="POST">
-				{% csrf_token %}
-				<div class="form-group">
-					<table>
-						{% verbatim %}
-						<tr>
-							<th>Book</th>
-							<td><span ng-bind="transaction_title"></span></td>
-						</tr>
-						{% endverbatim %}
-					{% for field in transaction_form %}
-						<tr>
-							<th>{{ field.label_tag }}</th>
-							<td>{{ field }}</td>
-							<td>
-								<span class="bg-danger" ng-bind="errors.{{ field.name }}">
-								</span>
-							</td>
-						</tr>
-					{% endfor %}
-					</table>
+				<div id="transaction-form" ng-show="tr_open">
+					<form method="POST">
+						{% csrf_token %}
+						<div class="form-group">
+							<table>
+								{% verbatim %}
+								<tr>
+									<th>Book:</th>
+									<td><span ng-bind="transaction_isbn"></span></td>
+								</tr>
+								{% endverbatim %}
+								{% for field in transaction_form %}
+									<tr>
+										<th>{{ field.label_tag }}</th>
+										<td>{{ field }}</td>
+										<td>
+											<span class="bg-danger" ng-bind="errors.{{ field.name }}">
+											</span>
+										</td>
+									</tr>
+								{% endfor %}
+							</table>
+						</div>
+						<input type="submit" ng-click="transaction()">
+					</form>
 				</div>
-				<input type="submit" ng-click="transaction()">
-			</form>
+			</div>
+			<div class="col-xs-5" ng-show="selected_row">
+				{% verbatim %}
+				<table class="table table-bordered">
+					<tr>
+						<th>#</th>
+						<th>Status</th>
+						<th>Date Made</th>
+						<th>Issue/Return</th>
+						<th>Close</th>
+					</tr>	
+					<tr ng-repeat="t in transactions">
+						<td>{{ $index + 1 }}</td>
+						<td>{{ t.fields.transaction_type?"Issued":"Returned" }}</td>
+						<td>{{ t.fields.transaction_date }}</td>
+						<td>{{ t.fields.other_date }}</td>
+						<td></td>
+					</tr>
+				</table>
+				{% endverbatim %}
+			</div>
 		</div>
-
-
 	</div>
 {% endblock %}

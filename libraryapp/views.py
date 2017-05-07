@@ -74,6 +74,12 @@ def transaction(request):
 
 	return books(request, errors)
 
+def get_transactions(request):
+	data = json.loads(request.body)
+	target_book = Book.objects.get(isbn=data["target"])
+	transactions = Transaction.objects.filter(book_id=target_book)
+	serialized_transactions = serializers.serialize("json", transactions[::-1])
+	return JsonResponse(data={"transactions":serialized_transactions})
 
 
 

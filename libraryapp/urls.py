@@ -25,5 +25,6 @@ urlpatterns = [
 	url(r'^add', views.add),
 	url(r'^edit', views.edit),
 	url(r'^delete', views.delete),
-	url(r'^transaction', views.transaction)
+	url(r'^transaction', views.transaction),
+	url(r'^get_transactions', views.get_transactions)
 ]
