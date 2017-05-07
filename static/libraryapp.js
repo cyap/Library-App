@@ -43,8 +43,11 @@ app.controller("books_ctrl", function($scope, $http, $timeout) {
 	$scope.transaction = function() {
 		$scope.tr.transaction_date = $scope.transaction_date_year + "-" 
 			+ $scope.transaction_date_month + "-" + $scope.transaction_date_day
+		$scope.tr.other_date = $scope.other_date_year + "-" 
+			+ $scope.other_date_month + "-" + $scope.other_date_day
 		$http.post("/transaction", {isbn:$scope.transaction_isbn, tr:$scope.tr})
 		.then($scope.update_view);
+		$scope.tr = {}
 	}
 
 	$scope.select = function(event) {
