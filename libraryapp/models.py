@@ -24,14 +24,14 @@ class Book(models.Model):
 			error_dict["isbn"] = error_dict.get("isbn", "") + " ISBN must contain numbers only."
 
 		# Stock
-		if self.stock < 0:
+		if int(self.stock) < 0:
 			error_dict["stock"] = "Stock must be positive."
 
-		if self.stock < self.issued:
+		if int(self.stock) < self.issued:
 			error_dict["stock"] = error_dict.get("stock", "") + " Stock must be greater than number of books issued."
 
 		# Issued
-		if self.issued < 0:
+		if int(self.issued) < 0:
 			error_dict["issued"] = "Books issued must be positive."
 
 		if error_dict:
