@@ -3,10 +3,10 @@
 {% block content %}
 	<div class="container-fluid" ng-app="app" ng-controller="books_ctrl">
 		<div class="row">
-			<div class="col-xs-7">
+			<div id="book-details" class="col-xs-7 well">
 				{% verbatim %}
 				<table class="table table-bordered">
-					<th colspan=8>Books</th>
+					<th class="table-title" colspan=8>Books</th>
 					<tr>
 						<th>#</th>
 						<th>ISBN</th>
@@ -22,19 +22,27 @@
 						<td ng-repeat="(key, property) in book.fields">
 							<span ng-hide="editor.{{ key + $parent.$index }}">{{ property }}</span>
 							<form ng-hide="!(editor.{{ key + $parent.$index }})">
-								<input type="text" ng-model="property">
-								<input type="submit" ng-click="edit_update(property, book)">
+								<input class="cell-edit" type="text" ng-model="property">
+								<input class="btn btn-xs" type="submit" ng-click="edit_update(property, book)">
 							</form>
 						</td>
 					</tr>
 				</table>
 				<span class="bg-danger" ng-bind="errors.general"></span><br>
 
-				<div class="btn-group">
-					<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
-					<button type="button" class="btn btn-primary mod-btn" ng-click="edit_book()" ng-disabled="!(selected_row)">Edit</button>
-					<button type="button" class="btn btn-primary mod-btn" ng-click="delete_book()" ng-disabled="!(selected_row)">Delete</button>
-					<button type="button" ng-disabled="!(selected_row)" class="btn btn-primary" ng-click="toggle_tr()">Transaction</button>
+				<div class="btn-group btn-group-justified">
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary" ng-click="toggle_add()">Add</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary mod-btn" ng-click="edit_book()" ng-disabled="!(selected_row)">Edit</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" class="btn btn-primary mod-btn" ng-click="delete_book()" ng-disabled="!(selected_row)">Delete</button>
+					</div>
+					<div class="btn-group">
+						<button type="button" ng-disabled="!(selected_row)" class="btn btn-primary" ng-click="toggle_tr()">Transaction</button>
+					</div>
 				</div>
 				{% endverbatim %}
 
@@ -55,11 +63,11 @@
 							{% endfor %}
 							</table>
 						</div>
-						<input type="submit" ng-click="add_book()">
+						<input class="btn btn-xs" type="submit" ng-click="add_book()">
 					</form>
 				</div>
 
-				<div id="transaction-form" ng-show="tr_open">
+				<div ng-show="tr_open">
 					<form method="POST">
 						{% csrf_token %}
 						<div class="form-group">
@@ -73,7 +81,7 @@
 								{% for field in transaction_form %}
 									<tr>
 										<th>{{ field.label_tag }}</th>
-										<td>{{ field }}</td>
+										<td class="cell-form">{{ field }}</td>
 										<td>
 											<span class="bg-danger" ng-bind="errors.{{ field.name }}">
 											</span>
@@ -82,14 +90,15 @@
 								{% endfor %}
 							</table>
 						</div>
-						<input type="submit" ng-click="transaction()">
+						<input class="btn btn-xs" type="submit" ng-click="transaction()">
 					</form>
 				</div>
 			</div>
-			<div class="col-xs-5">
+
+			<div id="transaction-details" class="col-s-5 well">
 				{% verbatim %}
 				<table class="table table-bordered">
-					<th colspan=5>Transactions</th>
+					<th class="table-title" colspan=5>Transactions</th>
 					<tr>
 						<th>#</th>
 						<th>Status</th>

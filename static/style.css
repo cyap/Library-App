@@ -1,2 +1,30 @@
+.table-title {
+	text-align: center;
+}
+
+/* Prevent tables from overlapping */
+
+td {
+	padding: 5px;
+	overflow:hidden;
+}
+
+#book-details, #transaction-details {
+	overflow: auto;
+
+	/*border: 1px solid black;
+	margin-right: 1px;*/
+}
+
+/* Form fields for editing book detail table (stock) attributes */
+.cell-edit {
+	width:50px;
+}
+
+/* Keep date fields in transaction form on the same line */
+.cell-form {
+	min-width: 211px;
+}
+
 
 
